@@ -4,8 +4,8 @@
 namespace App\Model;
 
 
-use App\Traits\DB;
 use PDO;
+use App\Utils\Config;
 
 abstract class AbstractModel
 {
@@ -33,17 +33,17 @@ abstract class AbstractModel
         $stm->execute([$id]);
     }
 
-    public static function db()
+    public static function db(): PDO
     {
         static $conn;
         if (!isset($conn)) {
             try {
                 $dsn = sprintf(
                     'mysql:host=%s;dbname=%s',
-                    '192.168.10.20',
-                    'homestead'
+                    config::getDbHost(),
+                    config::getDbName()
                 );
-                $conn = new PDO($dsn, 'homestead', 'secret');
+                $conn = new PDO($dsn, config::getDbUsername(), config::getDbUserPassword());
             } catch (\PDOException $exception) {
                 exit ('Connection to DB failed');
             }
