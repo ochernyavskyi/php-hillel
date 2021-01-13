@@ -11,7 +11,6 @@ use DateTime;
 
 class Ads extends AbstractModel
 {
-    use DB;
 
     public const TABLE_NAME = 'ads';
     public string $title;
@@ -74,7 +73,8 @@ class Ads extends AbstractModel
             ]);
         }
 
-        $db = self::getDb();
+        $db = AbstractModel::db();
+        var_dump($db);
         $stm = $db->prepare('
             INSERT INTO ads (`title`,body,created_at)
             VALUE (?,?,?)
@@ -89,20 +89,11 @@ class Ads extends AbstractModel
 
     public static function findByTitle(string $title): array
     {
-        $db = self::getDb();
+        $db = AbstractModel::db();
         $stm = $db->prepare('SELECT * FROM ads WHERE title = ?');
         $stm->execute([$title]);
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
         return $result ? $result : [];
     }
-
-
-    public static function remove(int $id)
-    {
-        $db = self::getDb();
-        $stm = $db->prepare('DELETE FROM ads WHERE id = ?');
-        $stm->execute([$id]);
-    }
-
 
 }

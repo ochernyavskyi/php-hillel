@@ -8,7 +8,6 @@ use DateTime;
 
 class User extends AbstractModel
 {
-    use DB;
 
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 0;
@@ -45,7 +44,7 @@ class User extends AbstractModel
             ]);
         }
 
-        $db = self::getDb();
+        $db = self::db();
         $stm = $db->prepare('
             INSERT INTO users (`name`,email,password,status,created_at)
             VALUE (?,?,?,?,?)
@@ -62,19 +61,11 @@ class User extends AbstractModel
 
     public static function findByEmail(string $email): array
     {
-        $db = self::getDb();
+        $db = AbstractModel::db();
         $stm = $db->prepare('SELECT * FROM users WHERE email = ?');
         $stm->execute([$email]);
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
         return $result ? $result : [];
-    }
-
-
-    public static function remove(int $id)
-    {
-        $db = self::getDb();
-        $stm = $db->prepare('DELETE FROM users WHERE id = ?');
-        $stm->execute([$id]);
     }
 
     public function getName(): string
