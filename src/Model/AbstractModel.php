@@ -40,10 +40,10 @@ abstract class AbstractModel
             try {
                 $dsn = sprintf(
                     'mysql:host=%s;dbname=%s',
-                    config::getDbHost(),
-                    config::getDbName()
+                    config::getCredentials('DBHOST:'),
+                    config::getCredentials('DBNAME:')
                 );
-                $conn = new PDO($dsn, config::getDbUsername(), config::getDbUserPassword());
+                $conn = new PDO($dsn, config::getCredentials('DBUSER:'), config::getCredentials('DBPASSWORD:'));
             } catch (\PDOException $exception) {
                 exit ('Connection to DB failed');
             }
