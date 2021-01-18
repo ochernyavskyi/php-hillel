@@ -3,49 +3,40 @@
 namespace App\Model;
 
 use App\Exception\ValidationException;
-use App\Traits\DB;
 use DateTime;
 
 class User extends AbstractModel
 {
-
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 0;
     public const TABLE_NAME = 'users';
 
-
-    private string $name;
-    private string $email;
-    private string $password;
-    private int $status;
-    private DateTime $createdAt;
-
-
-    public function __construct(
-        string $name,
-        string $email,
-        string $password
-    )
+    public function create(array $user): void
     {
-        $this->setName($name);
-        $this->setEmail($email);
-        $this->setPassword($password);
-        $this->status = self::STATUS_ACTIVE;
-        $this->createdAt = new DateTime();
+        $stm = $this->db()->prepare('
+            INSERT INTO users (`name`,email,password,status,created_at)
+            VALUE (?,?,?,?,?)
+        ');
+
+        $stm->execute([
+            $user['name'],
+            $user['email'],
+            $user['password'],
+            1,
+            (new \DateTime())->format('Y-m-d H:i:s')
+        ]);
     }
 
-
-    public static function save(User $user): void
+    public function save(User $user): void
     {
-        $checkUserExist = self::findByEmail($user->getEmail());
+        $checkUserExist = $this->findByEmail($user->getEmail());
         if ($checkUserExist) {
             throw new ValidationException([
                 'email' => 'Email already exist'
             ]);
         }
 
-        $db = self::db();
-        $stm = $db->prepare('
+        $stm = $this->db()->prepare('
             INSERT INTO users (`name`,email,password,status,created_at)
             VALUE (?,?,?,?,?)
         ');
@@ -59,10 +50,9 @@ class User extends AbstractModel
         ]);
     }
 
-    public static function findByEmail(string $email): array
+    public function findByEmail(string $email): array
     {
-        $db = AbstractModel::db();
-        $stm = $db->prepare('SELECT * FROM users WHERE email = ?');
+        $stm = $this->db()->prepare('SELECT * FROM users WHERE email = ?');
         $stm->execute([$email]);
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
         return $result ? $result : [];
@@ -126,5 +116,4 @@ class User extends AbstractModel
     {
         $this->createdAt = $createdAt;
     }
-
 }

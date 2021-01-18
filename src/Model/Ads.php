@@ -1,30 +1,14 @@
 <?php
 
-
 namespace App\Model;
 
 
 use App\Exception\InvalidTitleException;
 use App\Exception\ValidationException;
-use App\Traits\DB;
-use DateTime;
 
 class Ads extends AbstractModel
 {
-
     public const TABLE_NAME = 'ads';
-    public string $title;
-    public string $body;
-    private DateTime $createdAt;
-
-
-    public function __construct(string $title, string $body)
-    {
-        $this->setTitle($title);
-        $this->setBody($body);
-        $this->createdAt = new DateTime();
-
-    }
 
     public function getTitle(): string
     {
@@ -62,38 +46,32 @@ class Ads extends AbstractModel
         $this->createdAt = $createdAt;
     }
 
-
-
-    public static function save(Ads $ads): void
+    public function save(array $ads): void
     {
-        $checkTitleExist = self::findByTitle($ads->getTitle());
+        $checkTitleExist = $this->findByTitle($ads['title']);
         if ($checkTitleExist) {
             throw new ValidationException([
                 'title' => 'Title already exist'
             ]);
         }
 
-        $db = AbstractModel::db();
-        var_dump($db);
+        $db = $this->db();
         $stm = $db->prepare('
-            INSERT INTO ads (`title`,body,created_at)
-            VALUE (?,?,?)
+            INSERT INTO ads (`title`,body)
+            VALUE (?,?)
         ');
 
         $stm->execute([
-            $ads->getTitle(),
-            $ads->getBody(),
-            $ads->getCreatedAt()->format('Y-m-d H:i:s')
+            $ads['title'],
+            $ads['body'],
         ]);
     }
 
-    public static function findByTitle(string $title): array
+    public function findByTitle(string $title): array
     {
-        $db = AbstractModel::db();
-        $stm = $db->prepare('SELECT * FROM ads WHERE title = ?');
+        $stm = $this->db()->prepare('SELECT * FROM ads WHERE title = ?');
         $stm->execute([$title]);
         $result = $stm->fetch(\PDO::FETCH_ASSOC);
         return $result ? $result : [];
     }
-
 }

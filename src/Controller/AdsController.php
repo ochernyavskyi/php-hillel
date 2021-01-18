@@ -10,9 +10,16 @@ use App\Model\User;
 
 class AdsController
 {
+    private Ads $adsModel;
+
+    public function __construct()
+    {
+        $this->adsModel = new Ads('ads');
+    }
+
     public function index()
     {
-        $ads = Ads::findAll();
+        $ads = $this->adsModel->findAll();
 
         $data = [
             'title' => 'Ads list',
@@ -44,11 +51,10 @@ class AdsController
             throw new ValidationException($errors);
         }
 
-        $ads = new Ads(
-            $data['title'],
-            $data['body'],
-        );
-        Ads::save($ads);
+        $this->adsModel->save([
+            'title' => $data['title'],
+            'body' => $data['body'],
+        ]);
 
         header('Location: /ads');
         exit;
@@ -60,7 +66,7 @@ class AdsController
     {
         if (isset($_GET['id'])) {
             $id = (int)$_GET['id'];
-            Ads::remove($id);
+            $this->adsModel->remove($id);
         }
         header('Location: /ads');
         exit;
