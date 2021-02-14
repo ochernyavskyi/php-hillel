@@ -10,43 +10,8 @@ class Ads extends AbstractModel
 {
     public const TABLE_NAME = 'ads';
 
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
 
-    private function setTitle(string $title): void
-    {
-        if (empty($title) || strlen($title) > 100) {
-            echo 'Invalid title length';
-        } else
-            $this->title = htmlspecialchars($title);
-    }
-
-    public function getBody(): string
-    {
-        return $this->body;
-    }
-
-    private function setBody(string $body): void
-    {
-        if (empty($body) || strlen($body) > 1000) {
-            echo 'Invalid body length';
-        } else
-            $this->body = htmlspecialchars($body);
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function save(array $ads): void
+    public function create(array $ads): void
     {
         $checkTitleExist = $this->findByTitle($ads['title']);
         if ($checkTitleExist) {

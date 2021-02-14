@@ -51,7 +51,7 @@ class AdsController
             throw new ValidationException($errors);
         }
 
-        $this->adsModel->save([
+        $this->adsModel->create([
             'title' => $data['title'],
             'body' => $data['body'],
         ]);
